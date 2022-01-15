@@ -68,7 +68,8 @@ struct TeamObject
    owner_user_id::Snowflake
 end
 
-""" @enum ApplicationFlags
+
+"""@enum ApplicationFlags
 
 An enum that represents possible flags supplied
 to an application resource.
@@ -88,6 +89,7 @@ to an application resource.
    GATEWAY_MESSAGE_CONTENT = 1 << 18
    GATEWAY_MESSAGE_CONTENT_LIMITED = 1 << 19
 end
+
 
 """struct ApplicationObject
 
@@ -116,4 +118,155 @@ struct ApplicationObject
    slug::String
    cover_image::String
    flags::Int64
+end
+
+
+"""struct ConnectionProperties
+
+## Resources
+
+- [Discord API documentation](https://discord.com/developers/docs/topics/gateway#identify-identify-connection-properties)
+"""
+struct ConnectionProperties
+   os::String
+   browser::String
+   device::String
+end
+
+"""struct IdentifyRequest
+
+Used to initiate a handshake with the Discord gateway.
+
+
+## Resources
+
+- [Discord API documentation](https://discord.com/developers/docs/topics/gateway#identify-identify-structure)
+"""
+struct GatewayIdentify
+   token::String
+   properties::ConnectionProperties
+   large_threshold::UInt64
+   shard::Array{UInt64}
+   presence::UpdatePresenceObject
+   intents::UInt64
+end
+
+"""struct GatewayResume
+
+Used to resume a disrupted connection to the gateway.
+
+
+## Resources
+
+- [Discord API documentation](https://discord.com/developers/docs/topics/gateway#resume-resume-structure)
+"""
+struct GatewayResume
+   token::String
+   session_id::String
+   seq::Int64
+end
+
+
+"""struct Heartbeat
+
+Used to maintain an active gateway connection.
+The interval at which heartbeats are to be sent is received as part of
+the initial handshake.
+
+
+## Resources
+
+- [Discord API documentation](https://discord.com/developers/docs/topics/gateway#heartbeat)
+"""
+struct Heartbeat
+   op::Int64
+   d::Int64
+end
+
+
+"""struct GuildMembersRequest
+
+Used to request all members for a guild or a list of guilds. When initially connecting,
+if you don't have the `GUILD_PRESENCES` Gateway Intent, or if the guild is over 75k members,
+it will only send members who are in voice, plus the member for you (the connecting user).
+Otherwise, if a guild has over `large_threshold` members (value in the Gateway Identify),
+it will only send members who are online, have a role, have a nickname, or are in a voice channel,
+and if it has under large_threshold members, it will send all members.
+
+If a client wishes to receive additional members, they need to explicitly request them via this operation.
+The server will send Guild Members Chunk events in response with up to 1000 members per
+chunk until all members that match the request have been sent.
+
+
+## Resources
+
+- [Discord API documentation](https://discord.com/developers/docs/topics/gateway#request-guild-members)
+"""
+struct GuildMembersRequest
+   guild_id::Snowflake
+   query::String
+   limit::Int64
+   presences::Bool
+   user_ids::Array{Snowflake}
+   nonce::String
+end
+
+
+"""struct UpdateVoiceStateRequest
+
+Sent when a client wants to move, join, or disconnect from a voice channel.
+
+
+## Resources
+
+- [Discord API documentation](https://discord.com/developers/docs/topics/gateway#update-voice-state)
+"""
+struct UpdateVoiceStateRequest
+   guild_id::Snowflake
+   channel_id::Snowflake
+   self_mute::Bool
+   self_deaf::Bool
+end
+
+const OnlineStatus = "online"
+const DoNotDisturbStatus = "dnd"
+const IdleStatus = "idle"
+const InvisibleStatus = "invisible"
+const OfflineStatus = "offline"
+
+"""struct UpdatePresenceRequest
+
+## Resources
+
+- [Discord API documentation](https://discord.com/developers/docs/topics/gateway#update-presence)
+"""
+struct UpdatePresenceRequest
+   since::UInt64
+   activities::Array{Activity}
+   status::String
+   afk::Bool
+end
+
+
+## EVENTS #########################################################################################
+
+struct HeartbeatResponse
+   heartbeat_interval::UInt64
+end
+
+struct HelloEvent
+   opcode::UInt64
+   data::HeartbeatResponse
+end
+
+
+"""struct ReadyEvent
+"""
+struct ReadyEvent
+   version::UInt64
+   user::UserObject
+   guilds::Array{UnavailableGuildObject}
+   session_id::String
+   shard::Array{UInt64}
+   application::ApplicationObject
 end

@@ -1,3 +1,4 @@
+#[link(name="julia")]
 extern "C" {
    fn jl_init();
    fn jl_atexit_hook(i: i32);
