@@ -33,8 +33,7 @@ You can do this by clicking the link above and clicking on 'New Application' in 
 - Once you have created the application, you will need your bot token from the 'Bot' tab in your app's info page.
 Copy this token and then paste it into the `token` field in the `config/discord.toml` file.
 
-- Now you can simply double click on the 'Monitor.exe' file in the root folder and a terminal/console window will open, showing you
-the application's logs in real time. (These logs will also be saved in `/.logfile`.)
+- Now run the bot.
 
 
 ## Contribution
