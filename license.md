@@ -1,4 +1,4 @@
-### Copyright 2021 [Yarot Kell](https://twitter.com/yarotk)
+### Copyright 2021 [Yarot Kell](https://twitter.com/anderer_zyklus)
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
