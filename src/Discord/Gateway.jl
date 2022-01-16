@@ -121,7 +121,189 @@ struct ApplicationObject
 end
 
 
+"""struct GuildMembersRequest
+
+Used to request all members for a guild or a list of guilds. When initially connecting,
+if you don't have the `GUILD_PRESENCES` Gateway Intent, or if the guild is over 75k members,
+it will only send members who are in voice, plus the member for you (the connecting user).
+Otherwise, if a guild has over `large_threshold` members (value in the Gateway Identify),
+it will only send members who are online, have a role, have a nickname, or are in a voice channel,
+and if it has under large_threshold members, it will send all members.
+
+If a client wishes to receive additional members, they need to explicitly request them via this operation.
+The server will send Guild Members Chunk events in response with up to 1000 members per
+chunk until all members that match the request have been sent.
+
+
+## Resources
+
+- [Discord API documentation](https://discord.com/developers/docs/topics/gateway#request-guild-members)
+"""
+struct GuildMembersRequest
+   guild_id::Snowflake
+   query::String
+   limit::Int64
+   presences::Bool
+   user_ids::Array{Snowflake}
+   nonce::String
+end
+
+
+"""struct UpdateVoiceStateRequest
+
+Sent when a client wants to move, join, or disconnect from a voice channel.
+
+
+## Resources
+
+- [Discord API documentation](https://discord.com/developers/docs/topics/gateway#update-voice-state)
+"""
+struct UpdateVoiceStateRequest
+   guild_id::Snowflake
+   channel_id::Snowflake
+   self_mute::Bool
+   self_deaf::Bool
+end
+
+
+"""@enum GatewayStatus
+
+
+## Resources
+
+- [Discord API documentation](https://discord.com/developers/docs/topics/gateway#presence-update-presence-update-event-fields)
+"""
+@enum GatewayStatus begin
+   Online = "online"
+   DoNoDisturb = "dnd"
+   Idle = "idle"
+   Offline = "offline"
+end
+
+
+"""struct UpdatePresenceRequest
+
+## Resources
+
+- [Discord API documentation](https://discord.com/developers/docs/topics/gateway#update-presence)
+"""
+struct UpdatePresenceRequest
+   since::UInt64
+   activities::Array{Activity}
+   status::String
+   afk::Bool
+end
+
+
+"""struct ThreadMetadataObject
+
+
+## Resources
+
+- [Discord API documentation](https://discord.com/developers/docs/resources/channel#thread-metadata-object)
+"""
+struct ThreadMetadataObject
+   archived::Bool
+   auto_archive_duration::Int64
+   archive_timestamp::DateTime
+   locked::Bool
+   invitable::Bool
+end
+
+
+"""struct ThreadMemberObject
+
+
+## Resources
+
+- [Discord API documentation](https://discord.com/developers/docs/resources/channel#thread-member-object)
+"""
+struct ThreadMemberObject
+   id::Snowflake
+   user_id::Snowflake
+   join_timestamp::DateTime
+   flags::Int64
+end
+
+
+"""struct PermissionOverwrite
+
+
+## Resources
+
+- [Discord API documentation](https://discord.com/developers/docs/resources/channel#overwrite-object)
+"""
+struct PermissionOverwrite
+   id::Snowflake
+   type::Int64
+   allow::String
+   deny::String
+end
+
+
+"""struct GuildChannelObject
+
+
+## Resources
+
+- [Discord API documentation](https://discord.com/developers/docs/resources/channel#channels-resource)
+"""
+struct GuildChannelObject
+   id::Snowflake
+   type::Int64
+   guild_id::Snowflake
+   position::Int64
+   permission_overwrites::Array{PermissionOverwrite}
+   name::String
+   topic::String
+   nsfw::Bool
+   last_message_id::Snowflake
+   bitrate::Int64
+   user_limit::UInt64
+   rate_limit_per_user::Int64
+   recipients::Array{UserObject}
+   icon::String
+   owner_id::Snowflake
+   application_id::Snowflake
+   parent_id::Snowflake
+   last_pin_timestamp::DateTime
+   rtc_region::String
+   video_quality_mode::Int64
+   message_count::Int64
+   member_count::Int64
+   thread_metadata::ThreadMetadataObject
+   member::ThreadMemberObject
+   default_auto_archive_duration::UInt64
+   permissions::String
+end
+
+
+## EVENTS #########################################################################################
+
+struct HeartbeatEventResponse
+   heartbeat_interval::UInt64
+end
+
+struct HelloEvent
+   opcode::UInt64
+   data::HeartbeatEventResponse
+end
+
+
+"""struct ReadyEvent
+"""
+struct ReadyEvent
+   version::UInt64
+   user::UserObject
+   guilds::Array{UnavailableGuildObject}
+   session_id::String
+   shard::Array{UInt64}
+   application::ApplicationObject
+end
+
+
 """struct ConnectionProperties
+
 
 ## Resources
 
@@ -179,94 +361,93 @@ the initial handshake.
 - [Discord API documentation](https://discord.com/developers/docs/topics/gateway#heartbeat)
 """
 struct Heartbeat
-   op::Int64
-   d::Int64
+   opcode::Int64
+   data::Int64
 end
 
 
-"""struct GuildMembersRequest
-
-Used to request all members for a guild or a list of guilds. When initially connecting,
-if you don't have the `GUILD_PRESENCES` Gateway Intent, or if the guild is over 75k members,
-it will only send members who are in voice, plus the member for you (the connecting user).
-Otherwise, if a guild has over `large_threshold` members (value in the Gateway Identify),
-it will only send members who are online, have a role, have a nickname, or are in a voice channel,
-and if it has under large_threshold members, it will send all members.
-
-If a client wishes to receive additional members, they need to explicitly request them via this operation.
-The server will send Guild Members Chunk events in response with up to 1000 members per
-chunk until all members that match the request have been sent.
+"""struct HeartbeatAck
 
 
 ## Resources
 
-- [Discord API documentation](https://discord.com/developers/docs/topics/gateway#request-guild-members)
+- [Discord API documentation](https://discord.com/developers/docs/topics/gateway#heartbeat)
 """
-struct GuildMembersRequest
-   guild_id::Snowflake
-   query::String
-   limit::Int64
-   presences::Bool
-   user_ids::Array{Snowflake}
-   nonce::String
+struct HeartbeatAck
+   opcode::Int64
 end
 
 
-"""struct UpdateVoiceStateRequest
+"""struct GatewayInvalidSession
+"""
+struct InvalidSession
+   opcode::Int64
+   data::Bool
+end
 
-Sent when a client wants to move, join, or disconnect from a voice channel.
+
+"""struct ChannelCreateEvent
 
 
 ## Resources
 
-- [Discord API documentation](https://discord.com/developers/docs/topics/gateway#update-voice-state)
+- [Discord API documentation](https://discord.com/developers/docs/topics/gateway#channel-create)
 """
-struct UpdateVoiceStateRequest
-   guild_id::Snowflake
-   channel_id::Snowflake
-   self_mute::Bool
-   self_deaf::Bool
+struct ChannelCreateEvent
+   opcode::Int64
+   data::GuildChannelObject
 end
 
-const OnlineStatus = "online"
-const DoNotDisturbStatus = "dnd"
-const IdleStatus = "idle"
-const InvisibleStatus = "invisible"
-const OfflineStatus = "offline"
 
-"""struct UpdatePresenceRequest
+"""struct ChannelUpdateEvent
+
 
 ## Resources
 
-- [Discord API documentation](https://discord.com/developers/docs/topics/gateway#update-presence)
+- [Discord API documentation](https://discord.com/developers/docs/topics/gateway#channel-update)
 """
-struct UpdatePresenceRequest
-   since::UInt64
-   activities::Array{Activity}
-   status::String
-   afk::Bool
+struct ChannelUpdateEvent
+   opcode::Int64
+   data::GuildChannelObject
 end
 
 
-## EVENTS #########################################################################################
-
-struct HeartbeatResponse
-   heartbeat_interval::UInt64
-end
-
-struct HelloEvent
-   opcode::UInt64
-   data::HeartbeatResponse
-end
+"""struct ChannelDeleteEvent
 
 
-"""struct ReadyEvent
+## Resources
+
+- [Discord API documentation](https://discord.com/developers/docs/topics/gateway#channel-delete)
 """
-struct ReadyEvent
-   version::UInt64
-   user::UserObject
-   guilds::Array{UnavailableGuildObject}
-   session_id::String
-   shard::Array{UInt64}
-   application::ApplicationObject
+struct ChannelDeleteEvent
+   opcode::Int64
+   data::GuildChannelObject
 end
+
+
+"""@enum GatewayIntents
+
+
+## Resources
+
+- [Discord API documentation](https://discord.com/developers/docs/topics/gateway#list-of-intents)
+"""
+@enum GatewayIntents begin
+   Guilds = 1 << 0
+   GuildMembers = 1 << 1
+   GuildBans = 1 << 2
+   GuildEmojisStickers = 1 << 3
+   GuildIntegrations = 1 << 4
+   GuildWebhooks = 1 << 5
+   GuildInvites = 1 << 6
+   GuildVoiceStates = 1 << 7
+   GuildPresences = 1 << 8
+   GuildMessages = 1 << 9
+   GuildMessageReactions = 1 << 10
+   GuildMessageTyping = 1 << 11
+   DirectMessages = 1 << 12
+   DirectMessageReactions = 1 << 13
+   DirectMessageTyping = 1 << 14
+   GuildScheduledEvents = 1 << 16
+end
+
