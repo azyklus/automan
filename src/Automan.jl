@@ -8,6 +8,7 @@ end
 
 export
    Discord,
+   WebSocket,
    startup
 
 end

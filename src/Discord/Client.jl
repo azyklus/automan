@@ -1,3 +1,8 @@
+mutable struct Shard
+   id::UInt64
+end
+
+
 """mutable struct Client
 
 Represents a Discord client.
@@ -8,6 +13,12 @@ mutable struct Client
    shards::Array{Shard}
 end
 
-mutable struct Shard
-   id::UInt64
+function Client(settings::Settings)
+   client = Client(settings, [Shard(0)])
+   for i = 0:client.shard_count
+      shard = Shard(i)
+      push!(client.shards, shard)
+   end
+
+   return client
 end

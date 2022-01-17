@@ -7,6 +7,7 @@ include("Discord/REST.jl")
 
 export
    Client,
+   Shard,
    Settings
 
 end
